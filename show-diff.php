@@ -168,7 +168,15 @@ foreach($tablesToDiff as $table=>$diffParams) {
     }
 
     $columnsLength = [];
-    $columnsLength[0] = max(array_map('strlen', array_keys($diffOutput)));
+    if ($diffOutput) {
+        $columnsLength[0] = max(array_map('strlen', array_keys($diffOutput)));
+    } else {
+        $columnsLength[0] = 0;
+    }
+
+    if (strlen($tableName) > $columnsLength[0]) {
+        $columnsLength[0] = strlen($tableName);
+    }
 
     foreach($diffParams['entity_ids'] as $k=>$value) {
         $length = mb_strlen($value);
@@ -189,7 +197,6 @@ foreach($tablesToDiff as $table=>$diffParams) {
     $outputLines = [];
 
 
-
     $outputHeader = '';
     $outputHeader .= str_pad($diffParams['entity_pk'], $columnsLength[0], ' ', STR_PAD_RIGHT);
     $outputHeader .= ' | ';
@@ -202,19 +209,25 @@ foreach($tablesToDiff as $table=>$diffParams) {
     }
     $outputHeader = trim($outputHeader);
 
+    if (!$diffOutput) {
+        $outputLines[] = '| '.str_pad('All items are equal', strlen($outputHeader)-4, ' ', STR_PAD_RIGHT).' |';
+    } else {
 
-    foreach($diffOutput as $column=>$values) {
-        $outputLine = '';
-        $outputLine .= str_pad($column, $columnsLength[0], ' ', STR_PAD_RIGHT);
-        $outputLine .= ' | ';
-        foreach($values as $k=>$value) {
-            $value = trim($value);
-            $value = str_replace(PHP_EOL, ' ', $value);
-            if (mb_strlen($value) > MAX_CELL_SIZE) $value = mb_substr($value,0,MAX_CELL_SIZE-2).'..';
-            $outputLine .= str_pad($value, $columnsLength[$k+1], ' ', STR_PAD_RIGHT);
+        foreach ($diffOutput as $column => $values) {
+            $outputLine = '';
+            $outputLine .= str_pad($column, $columnsLength[0], ' ', STR_PAD_RIGHT);
             $outputLine .= ' | ';
+            foreach ($values as $k => $value) {
+                $value = trim($value);
+                $value = str_replace(PHP_EOL, ' ', $value);
+                if (mb_strlen($value) > MAX_CELL_SIZE) {
+                    $value = mb_substr($value, 0, MAX_CELL_SIZE - 2) . '..';
+                }
+                $outputLine .= str_pad($value, $columnsLength[$k + 1], ' ', STR_PAD_RIGHT);
+                $outputLine .= ' | ';
+            }
+            $outputLines[] = trim($outputLine);
         }
-        $outputLines[] = trim($outputLine);
     }
 
     echo PHP_EOL;
