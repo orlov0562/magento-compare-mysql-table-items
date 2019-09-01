@@ -140,11 +140,11 @@ foreach($tablesToDiff as $table=>$diffParams) {
     }
 
     foreach ($columnsToCheck as $tableColumn) {
-        if (!empty($diffParams['include'])) {
-            if (!in_array($tableColumn, $diffParams['include'])) continue;
+        if (!empty($diffParams['column_include'])) {
+            if (!in_array($tableColumn, $diffParams['column_include'])) continue;
         }
-        if (!empty($diffParams['exclude'])) {
-            if (in_array($tableColumn, $diffParams['exclude'])) continue;
+        if (!empty($diffParams['column_exclude'])) {
+            if (in_array($tableColumn, $diffParams['column_exclude'])) continue;
         }
         $hasDiff = false;
         $isFirstDataSet = true;
